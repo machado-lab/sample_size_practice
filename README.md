@@ -31,21 +31,17 @@ if(!require(plot3D)){install.packages("plot3D")}; library(plot3D)
 # load the example datababse 
 clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
 
-
 ```
-
-
 # Simple random sampling
 
-We will a sample of the specified **N** from the elements. here a short example:
-* how Will give me a cookie ? 
-my options are Felipe, Jason, Abby, Gustavo and Kelsey 
+We will take a sample of **N** from a list of target invidious:
+* I wanted to sample from a list of friend and calculate who will provide me with my daily cookie? 
+My options are the following: Felipe, Jason, Abby, Gustavo and Kelsey.
 
-> I can run one time a random sample selectin just one 
- 
+> I can run one time random sample selectin once.
  
 ```{r}
-# set my options to get my cookie  
+# Options to get my cookie  
 N <- c("Felipe",
        "Jason", 
        "Abby",
@@ -55,7 +51,7 @@ N <- c("Felipe",
 # Calculate the sample 
 sample(N,              # total of the population 
        1,              # one person 
-       replace = F)    # sampletin without replacement 
+       replace = F)    # sampling without replacement 
 ```
 you get back luck, lets gonna simulate 1000 times 
 

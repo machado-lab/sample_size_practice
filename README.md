@@ -22,19 +22,20 @@ output:
 #load the packages 
 if(!require(tidyverse)){install.packages("tidyverse")}; library(tidyverse)
 if(!require(epiR)){install.packages("epiR")}; library(epiR)
-if(!require(SDaA)){install.packages("SDaA")}; library(SDaA)
-if(!require(reshape2)){install.packages("reshape2")}; library(reshape2)
+if(!require(readxl)){install.packages("readxl")}; library(readxl)
 if(!require(sampler)){install.packages("sampler")}; library(sampler)
 if(!require(readr)){install.packages("readr")}; library(readr)
 if(!require(plot3D)){install.packages("plot3D")}; library(plot3D)
 # load the example datababse 
-clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
-
+# clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
+clinical_mastitis_cows <- read_excel("clinical_mastitis_cows.xlsx")
 ```
 # Simple random sampling.
 
 We will take a sample of **N** from a list of target invidious:
+
 * I wanted to sample from a list of friend and calculate who will provide me with my daily cookie? 
+
 My options are the following: Felipe, Jason, Abby, Gustavo and Kelsey.
 
 > I can run one time random sample selectin once.
@@ -69,7 +70,10 @@ Here we will calculate the number of animals needed to estimate disease prevalen
 For this example the expected prevalence is **15%**. We want to know how the sample size in which a **95%** confidence interval is needed. We know that our total target population is `N` of 1000 animals.
 
 ```{r}
-size <- rsampcalc(N=1000, e=3, ci=95, p=0.15) (@nico explain each parameter)
+size <- rsampcalc(N=1000,   # total of the population 
+                  e=3,      # tolerable margin of error this case 3%
+                  ci=95,    # confidence interval of 95%
+                  p=0.15)   # expected prevalence 
 print(size)
 
 ```
@@ -81,7 +85,11 @@ sort(table(albania$qarku))
 ```
 ```{r}
 # Calulate the overall sample size.
-size <- rsampcalc(nrow(albania), e=3, ci=95, p=0.15) (@nico explain each parameter)
+size <- rsampcalc(nrow(albania),  #  Total number of record 
+                  e=3,            # tolerable margin of error this case 3%
+                  ci=95,          # confidence interval of 95%
+                  p=0.5)          # anticipated response distribution
+
 # Stratify the data by the variable 'qarku' which represent the region.
 stratifiedsample <- ssamp(albania, size, qarku)
 sort(table(stratifiedsample$qarku))
@@ -133,7 +141,7 @@ epi.ssclus1estb(b = 75,                 # The number of individual in each clust
 # Assignment.
 Data for: Clinical Mastitis in cows based on Udder Parameter using Internet of Things (IoT) from [this study](https://github.com/machado-lab/CBS-595-Special-topics-in-disease-epidemiology/blob/main/CBS_595_epidemiology/Exploratory%20data%20analysis/Exploratory%20data%20analysis_lecture.pdf), each row represents one animal, therefore, we have a population of n = `r nrow(clinical_mastitis_cows %>% filter(Day == max(Day)))`.
 
-First prepare the data to be analyze, here we will consider the results at `Day = 6`, and we will stratify by the variable `Address`. Then, calculate the number of animals requited to estimate a prevalence of “_mastitis_” the outcome of interest for this target population with a tolerable margin of error of `3`. For this exercise assume that your expected prevalence for this area **20%**. How many cattle need to be sampled and tested using confidence interval of **95%** ?
+First prepare the data to be analyze, here we will consider the results at `Day = 6`, and we will stratify by the variable `Address`. Then, calculate the number of animals requited to estimate a prevalence of “_mastitis_”  with a tolerable margin of error of `3`. For this exercise assume that your expected prevalence for this area **20%**. How many cattle need to be sampled and tested using confidence interval of **95%** ?
 
 > This code will filter the data as needed (day 6).
 

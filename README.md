@@ -130,23 +130,20 @@ epi.ssclus1estb(b = 75,                 # The number of individual in each clust
                 conf.level = 0.95)$n.psu# IC95%
 ```
 
-# Challenge 
-Data for: Clinical Mastitis in Cows based on Udder Parameter using Internet of Things (IoT) from [this study](https://github.com/machado-lab/CBS-595-Special-topics-in-disease-epidemiology/blob/main/CBS_595_epidemiology/Exploratory%20data%20analysis/Exploratory%20data%20analysis_lecture.pdf), each represent one animal thus we have a population of n = `r nrow(clinical_mastitis_cows %>% filter(Day == max(Day)))`.
+# Assignment.
+Data for: Clinical Mastitis in cows based on Udder Parameter using Internet of Things (IoT) from [this study](https://github.com/machado-lab/CBS-595-Special-topics-in-disease-epidemiology/blob/main/CBS_595_epidemiology/Exploratory%20data%20analysis/Exploratory%20data%20analysis_lecture.pdf), each row represents one animal, therefore, we have a population of n = `r nrow(clinical_mastitis_cows %>% filter(Day == max(Day)))`.
 
-First prepare the data to be analyze, here we will consider the results at `Day = 6`, and we will stratify by the variable `Address`. Then, calculate the number of animals requited to estimate a prevalence of _mastitis_ a disease this population with a tolerable margin of error of `3`.For this exercise assume that your expected prevalence for this area **20%**. How many cattle need to be sampled and tested using interval confidence of **95%** ?
+First prepare the data to be analyze, here we will consider the results at `Day = 6`, and we will stratify by the variable `Address`. Then, calculate the number of animals requited to estimate a prevalence of “_mastitis_” the outcome of interest for this target population with a tolerable margin of error of `3`. For this exercise assume that your expected prevalence for this area **20%**. How many cattle need to be sampled and tested using confidence interval of **95%** ?
 
-> the next code filter the data by tyhe day = 6 
+> This code will filter the data as needed (day 6).
 
 ```{r, warning=F, message=FALSE}
 #prepare data for analysis
-clinical_mastitis_cows <- clinical_mastitis_cows %>% # indicates the  database
+clinical_mastitis_cows <- clinical_mastitis_cows %>% # indicates thedatabase
   filter(Day == max(Day))                             # filter by 6 day 
 
 ```
 
-
-
 # references 
-
 [Sample Size Estimation in Veterinary Epidemiologic Research](https://www.frontiersin.org/articles/10.3389/fvets.2020.539573/full)
 [Practical Issues in Calculating the Sample Size for Prevalence Studies](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.504.2129&rep=rep1&type=pdf)

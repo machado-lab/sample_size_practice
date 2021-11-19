@@ -1,20 +1,11 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
----
+
+
 title: "Sampling Populations"
 author: 'NCSU: Nicolas Cardenas & Gustavo Machado'
 subtitle: 'practical examples of sampling populations in veterinary medicine using R' 
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
-  html_document: default
----
+
 
 ## Set some packages and data in R.
 

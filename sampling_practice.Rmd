@@ -15,6 +15,8 @@ output:
 ---
 
 ### Set some packages and data in R.
+### data is avaliable in
+https://github.com/machado-lab/sample_size_practice 
 
 ```{r, echo=T, warning=F, message=FALSE}
 #load and install the packages (if required)
@@ -33,6 +35,9 @@ herds <- herds %>% distinct(cowid, .keep_all = T)
 # round  herd size 
 herds$h_size <- ceiling(herds$h_size)
 ```
+
+
+
 
 # Why of Sample Size Calculations
 

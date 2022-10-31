@@ -7,87 +7,55 @@ date: "`r Sys.Date()`"
 output:
 
 
-## Set some packages and data in R.
+### Set some packages and data in R.
+### data is avaliable in
+https://github.com/machado-lab/sample_size_practice 
 
-```{r, echo=FALSE, warning=F, message=FALSE}
-#load the packages 
+```{r, echo=T, warning=F, message=FALSE}
+#load and install the packages (if required)
 if(!require(tidyverse)){install.packages("tidyverse")}; library(tidyverse)
 if(!require(epiR)){install.packages("epiR")}; library(epiR)
 if(!require(readxl)){install.packages("readxl")}; library(readxl)
 if(!require(sampler)){install.packages("sampler")}; library(sampler)
 if(!require(readr)){install.packages("readr")}; library(readr)
 if(!require(plot3D)){install.packages("plot3D")}; library(plot3D)
-# load the example datababse 
-# clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
-clinical_mastitis_cows <- read_excel("clinical_mastitis_cows.xlsx")
+if(!require(sampling)){install.packages("sampling")}; library(sampling)
+
+# load the example database 
+herds <- read_excel("~/repos/scc_40.xlsx")
+# set the data for use here!
+herds <- herds %>% distinct(cowid, .keep_all = T)
+# round  herd size 
+herds$h_size <- ceiling(herds$h_size)
 ```
-# Simple random sampling.
 
-We will take a sample of **N** from a list of target invidious:
 
-* I wanted to sample from a list of friend and calculate who will provide me with my daily cookie? 
 
-My options are the following: Felipe, Jason, Abby, Gustavo and Kelsey.
 
-> I can run one time random sample selectin once.
- 
-```{r}
-# Options to get my cookie  
-N <- c("Felipe",
-       "Jason", 
-       "Abby",
-       "Gustavo",
-       "Kelsey" )
+# Why of Sample Size Calculations
 
-# Calculate the sample 
-sample(N,              # total of the population 
-       1,              # one person 
-       replace = F)    # sampling without replacement 
-```
-To better represent the sample drawing we will simulate this sampling for 1000 times
+-   How many animals/subjects do I need for my experiment?
+    -   Too small of a sample size can under detect the effect of interest in your experiment.
 
-```{r}
-# Simple random sample repeated 1000 times.
-result <- sample(N,       # total of the population 
-          1000,           # one person 
-          replace = T)    # sample without replacement
+    -   Too large of a sample size may lead to unnecessary wasting of resources and animals Like Goldilocks, we want our sample size to be 'just right'.
+-   The answer: Goal: Sample Size Calculation.
 
-# Present into a table with the results.
-sort(table(result))
-```
-# Sample size.
+# Sample size and the expected proportion i.e.
 
-Here we will calculate the number of animals needed to estimate disease prevalence in a finite population.
-For this example the expected prevalence is **15%**. We want to know how the sample size in which a **95%** confidence interval is needed. We know that our total target population is `N` of 1000 animals.
+Here we will calculate the number of animals needed to estimate disease prevalence in a finite population. For this example, the expected prevalence is **15%**. We want to know how the sample size in which a **95%** confidence interval is needed. We know that our total target population is `N` of 1000 animals.
 
 ```{r}
 size <- rsampcalc(N=1000,   # total of the population 
-                  e=3,      # tolerable margin of error this case 3%
+                  e=5,      # tolerable margin of error this case 5%
                   ci=95,    # confidence interval of 95%
                   p=0.15)   # expected prevalence 
 print(size)
 
 ```
-# Stratified random sampling.
-For this example we are going to use the `Albania` dataset containing 2017 Albania election that is previously installed in R. First, we are going to explore in detail the variable `qarku` that means county or location to see how many records are in each region.
 
-```{r}
-sort(table(albania$qarku))
-```
-```{r}
-# Calulate the overall sample size.
-size <- rsampcalc(nrow(albania),  #  Total number of record 
-                  e=3,            # tolerable margin of error this case 3%
-                  ci=95,          # confidence interval of 95%
-                  p=0.5)          # anticipated response distribution
+# Relationship between population size, proportion, and sample size
 
-# Stratify the data by the variable 'qarku' which represent the region.
-stratifiedsample <- ssamp(albania, size, qarku)
-sort(table(stratifiedsample$qarku))
-```
-# Relation between sample size and prevalence.
-
-In the next analysis, we are going to simulate 1000 sampling designs. Here we are going to consider an initial prevalence of 1% while increasing the expected prevalence all the way to 100%, in this same way we are going to consider that population size from 10 animals to 100 animals. In the next plot, the color reflects the sample size where warm colors represent larger sample sizes.
+In the next analysis, we are going to simulate 1000 sampling designs. Here, we are going to consider an initial prevalence of 1% while increasing the expected prevalence all the way to 100%, in this same vein, let's consider that population size from 10 animals to 1000 animals. In the next plot, is elucidated the effect of all these factorial combinations. the color reflects the sample size whereas warm colors represent larger sample sizes.
 
 ```{r}
 # Set up the number of samples.
@@ -116,31 +84,229 @@ scatter3D(mydata$myprevalence,
           type = "h",
           xlab = "Prevalence", ylab = "Sample size", zlab = "Population")
 ```
-# Cluster sampling.
 
-An aid project has distributed cook stoves in a single province in a resource-poor country. At the end of three years, the donors would like to know what proportion of households are still using their donated stove. A cross-sectional study was planned where villages in a province will be sampled and all households (approximately `75` per village) will be visited to determine if the donated stove is still in use. A pilot study of the prevalence of stove usage in five villages showed that `0.46 `of householders were still using their stove and the intra-cluster correlation coefficient (ICC) for stove use within villages is in the order of `0.20`. If the donor wanted to be 95% confident that the survey estimate of stove usage was within` 10% `of the true population value, how many villages (clusters) need to be sampled?
+# Simple random sampling.
+
+We will take a sample of **N** from a list of target invidious:
+
+-   I wanted to sample from a list of friend and calculate who will provide me with my daily cookie?
+
+My options are the following: Felipe, Arthur, Denilson, Jason, Abby, Gustavo and Kelsey.
+
+I can run one time random sample selection once.
 
 ```{r}
-epi.ssclus1estb(b = 75,                 # The number of individual in each cluster to be sampled.
-                Py = 0.46,              # An estimate of the unknown population proportion is this case 46%.
-                epsilon = 0.10,         # The maximum difference between the estimate and the unknown population value.
-                error = "relative",     # Type of error to be used.
-                rho = 0.20,             # The intra-cluster correlation.
-                conf.level = 0.95)$n.psu# IC95%
+# Options to get my cookie  
+labmates <- c("Felipe",
+       "Jason", 
+       "Arthur",
+       "Denilson",
+        "Abby",
+       "Gustavo",
+       "Kelsey" )
+
+# Calculate the sample 
+sample(labmates,              # total of the population 
+       1,              # one person 
+       replace = F)    # sampling without replacement 
 ```
 
-# Assignment.
-Data for: Clinical Mastitis in cows based on Udder Parameter using Internet of Things (IoT) from [this study](https://github.com/machado-lab/CBS-595-Special-topics-in-diseaseepidemiology/blob/main/CBS_595_epidemiology/Exploratory%20data%20analysis/Exploratory%20data%20analysis_lecture.pdf), each row represents one animal, therefore, we have a population of n = `r nrow(clinical_mastitis_cows %>% filter(Day == max(Day)))`.
+To better represent the sample drawing we will simulate this sampling for 1000 times
 
-Step 1 prepare the data to be analyzed, here we will consider the results at `Day = 6`, and we will stratify by the variable `Address`. Then, calculate the number of animals required to estimate a prevalence of “_mastitis_”  with a tolerable margin of error of `3`. For this exercise assume that your expected prevalence for this area **20%**. How many cattle need to be sampled and tested using a confidence interval of **95%** ?
+```{r}
+# Simple random sample repeated 1000 times.
+result <- sample(labmates,       # total of the population 
+          1000,           # one person 
+          replace = T)    # sample without replacement
 
-```{r, warning=F, message=FALSE}
-#prepare data for analysis
-clinical_mastitis_cows <- clinical_mastitis_cows %>% # indicates thedatabase
-  filter(Day == max(Day))                             # filter by 6 day 
+# Present into a table with the results.
+sort(table(result))
+```
+
+## Herds data as an example of a dataset
+
+In the next examples, we will use `herds` dataframe which is a subset of a [large mastitis dataset collected by Jens Agger and the Danish Cattle Organization](https://www.sciencedirect.com/science/article/pii/S016758770100191X?via%3Dihub "reference"). This dataset contains records from 14,357 test-day observations in 2,178 cows from 40 herds. Milk weights (production records) were collected approximately monthly, and only records from a single lactation for each cow were included in this dataset. Factors that may have affected the somatic cell count (SCC) were also recorded. The major objective of this study was to determine if the relationship between the somatic cell count and milk production varies for cows with different characteristics (age, breed, grazing or not etc).
+
+### variables description
+
+| variable | Description                        | Codes/units     |
+|----------|------------------------------------|-----------------|
+| herdid   | herd id                            |                 |
+| cowid    | cow id                             |                 |
+| test     | the approximate month of lactation | 0 to 10         |
+| h_size   | average herd size                  |                 |
+| c_heifer | parity of the cow                  | 1 = heifer      |
+|          |                                    | 0 = multiparous |
+| t_season | season of test day                 | l = jan-mar     |
+|          |                                    | 2 = apr-jun     |
+|          |                                    | 3 = jul-sep     |
+|          |                                    | 4 = oct-dec     |
+| t_dim    | days in milk on test-day           | days            |
+| t_lnscc  | log somatic cell count on test day |                 |
+
+```{=tex}
+\begin{enumerate}
+  \item A complete list of the population to be sampled is not required.
+  \item The sampling interval is computed as population size divided by the required sample size. 
+           
+\end{enumerate}
+```
+### Let's calculate the sample size first
+
+```{r}
+#get the total of animals in the population 
+N_total_cows <- nrow(herds)                # Total of animal in the population
+
+# Calculate sample size.
+my_sample_size <- rsampcalc(N_total_cows,  # Total number of records 
+                  e=5,                     # Tolerable margin of error this case 3%
+                  ci=95,                   # Confidence interval of 95%
+                  p=0.5)                   # Anticipated response distribution
+
+print(my_sample_size)
 
 ```
 
-# references 
-[Sample Size Estimation in Veterinary Epidemiologic Research](https://www.frontiersin.org/articles/10.3389/fvets.2020.539573/full)
-[Practical Issues in Calculating the Sample Size for Prevalence Studies](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.504.2129&rep=rep1&type=pdf)
+Thus, we have to sample `r my_sample_size` cows from the herd's population.
+
+# Systematic random sample
+
+```{r}
+my_selected_cows <- ceiling(seq(from= 1,           # Initial number of cows 
+                    to = nrow(herds),              # Total number of cows 
+                    length.out = my_sample_size))  # my sample size
+
+# select the cows sampled 
+my_sampled_cows <- herds %>%
+  filter(cowid %in% my_selected_cows)
+head(my_sampled_cows)
+
+```
+
+# Stratified random sample
+
+suppose that im interesting in taking a sample that represents well all the different samples size because that may impact the analysis of my study.
+
+let's see how is my strata
+
+```{r}
+# table the cows by strata 
+herds %>%
+  group_by(h_size)%>%
+  count() %>%
+  arrange(-h_size)
+
+
+
+```
+
+We found 29 strata in my data, no here we will create a subset of `herds` database by using a stratified random sample approach
+
+```{r}
+
+# Stratify the data by the variable 'h_size' which represents the herd size classification
+stratifiedsample <- ssamp(df = herds,           # database to sample 
+                          n = my_sample_size,   # sample size 
+                          strata = h_size)      #strata to be used 
+# check the sampled data
+stratifiedsample %>%           # my final database after the stratified random sampling
+  group_by(h_size) %>%         # group by the strata variable 
+  count() %>%                  # count the item by strata 
+  arrange(-h_size)             # sort in decreasing order 
+```
+
+# Cluster sampling
+
+```{=tex}
+\begin{enumerate}
+ \item A cluster is a natural or convenient collection of study subjects with one or more characteristics in common
+ \begin{itemize}
+   \item a dairy herd is a cluster of cattle. 
+  \end{itemize}
+ \item Cluster sampling is done because it might be easier to get a list of clusters (farms) than it would be to get a list of individuals (calves).
+\end{enumerate}
+```
+### lets select the farms id as clusters
+
+```{r}
+# create my clusters list 
+clusters <- unique(herds$herdid)
+
+```
+
+### select a sample size of the clusters
+
+```{r}
+# Calculate the sample size of the clusters
+my_sample_size_cluster <- rsampcalc(length(clusters),  # Total number of clusters  
+                  e=5,                         # Tolerable margin of error this case 3%
+                  ci=95,                       # Confidence interval of 95%
+                  p=0.15)                       # Anticipated response distribution
+my_sample_size_cluster
+```
+
+here, given the small $N$ of our sample, we take a sample of `r my_sample_size_cluster`
+
+### Filtering the herd's data by the clusters selected
+
+```{r}
+# create a sample of the clusters (herds ids)
+herds_to_be_sampled <-  sample(herds$herdid, 
+                               my_sample_size_cluster)
+
+herds_sampled <- herds %>%
+  filter(herdid %in% herds_to_be_sampled)
+
+head(herds_sampled)
+
+```
+
+# Multi-stage sampling
+
+Here we will generates artificial data (a 235X3 matrix with 3 columns: state, region, income).
+
+-   The variable "`state`" has 2 categories ('***Triangle***','***No_triangle***').
+
+-   The variable "`region`" has 5 categories ('Cary', 'Raleigh', 'Durham', 'Ashville', 'Carolina').
+
+-   The variable "`income`" is generated using the U(0,1) distribution.
+
+```{r}
+# create a random data 
+data<- rbind(matrix(rep('Triangle',165),165,1,byrow=TRUE),
+             matrix(rep('No_triangle',70),70,1,byrow=TRUE))
+# add region categories 
+data <- cbind.data.frame(data,c(rep('Cary',115),
+                                rep('Raleigh',10),
+                                rep('Durham',40),
+                                rep('Ashville',30),
+                                rep('Carolina beach',40)),
+                         100*runif(235))
+
+# set the names 
+names(data)=c("state","region","income")
+
+```
+
+the method is simple random sampling without replacement where \# 25 units are drawn in the first-stage and in the second-stage, 10 units are drawn from the already 25 selected units
+
+```{r}
+m=mstage(data,
+         size=list(25,  # first strata a sample of 25   
+                   10), # strata 
+         method=list("srswor","srswor")) # stands for simple random sampling without replacement 
+
+
+```
+
+### The first stage is `m[[1]]`, the second stage is `m[[2]]`
+
+
+
+```{r}
+# extracts the observed data
+xx=getdata(data,m)[[2]]
+
+# check the result 
+table(xx$state,xx$region)
+```

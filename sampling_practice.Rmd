@@ -34,7 +34,7 @@ herds <- herds %>% distinct(cowid, .keep_all = T)
 herds$h_size <- ceiling(herds$h_size)
 ```
 
-# The Why of Sample Size Calculations
+# Why of Sample Size Calculations
 
 -   How many animals/subjects do I need for my experiment?
     -   Too small of a sample size can under detect the effect of interest in your experiment.
@@ -274,10 +274,16 @@ Here we will generates artificial data (a 235X3 matrix with 3 columns: state, re
 -   The variable "`income`" is generated using the U(0,1) distribution.
 
 ```{r}
-# create the data 
-data<- rbind(matrix(rep('Triangle',165),165,1,byrow=TRUE),matrix(rep('No_triangle',70),70,1,byrow=TRUE))
-#add region categories 
-data <- cbind.data.frame(data,c(rep('Cary',115),rep('Raleigh',10),rep('Durham',40),rep('Ashville',30),rep('Carolina beach',40)),100*runif(235))
+# create a random data 
+data<- rbind(matrix(rep('Triangle',165),165,1,byrow=TRUE),
+             matrix(rep('No_triangle',70),70,1,byrow=TRUE))
+# add region categories 
+data <- cbind.data.frame(data,c(rep('Cary',115),
+                                rep('Raleigh',10),
+                                rep('Durham',40),
+                                rep('Ashville',30),
+                                rep('Carolina beach',40)),
+                         100*runif(235))
 
 # set the names 
 names(data)=c("state","region","income")
@@ -288,9 +294,10 @@ the method is simple random sampling without replacement where \# 25 units are d
 
 ```{r}
 m=mstage(data,
-         size=list(25,   
-                   10),
+         size=list(25,  # first strata a sample of 25   
+                   10), # strata 
          method=list("srswor","srswor")) # stands for simple random sampling without replacement 
+
 
 ```
 

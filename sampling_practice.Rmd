@@ -14,19 +14,24 @@ output:
   html_document: default
 ---
 
-## Set some packages and data in R.
+### Set some packages and data in R.
 
-```{r, echo=FALSE, warning=F, message=FALSE}
-#load the packages 
+```{r, echo=T, warning=F, message=FALSE}
+#load and install the packages (if required)
 if(!require(tidyverse)){install.packages("tidyverse")}; library(tidyverse)
 if(!require(epiR)){install.packages("epiR")}; library(epiR)
 if(!require(readxl)){install.packages("readxl")}; library(readxl)
 if(!require(sampler)){install.packages("sampler")}; library(sampler)
 if(!require(readr)){install.packages("readr")}; library(readr)
 if(!require(plot3D)){install.packages("plot3D")}; library(plot3D)
-# load the example datababse 
-# clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
-clinical_mastitis_cows <- read_excel("clinical_mastitis_cows.xlsx")
+if(!require(sampling)){install.packages("sampling")}; library(sampling)
+
+# load the example database 
+herds <- read_excel("~/repos/scc_40.xlsx")
+# set the data for use here!
+herds <- herds %>% distinct(cowid, .keep_all = T)
+# round  herd size 
+herds$h_size <- ceiling(herds$h_size)
 ```
 
 # The Why of Sample Size Calculations
@@ -141,30 +146,162 @@ In the next examples, we will use `herds` dataframe which is a subset of a [larg
 | t_dim    | days in milk on test-day           | days            |
 | t_lnscc  | log somatic cell count on test day |                 |
 
-
-
-
-
-
-
-
-
-
-
+```{=tex}
+\begin{enumerate}
+  \item A complete list of the population to be sampled is not required.
+  \item The sampling interval is computed as population size divided by the required sample size. 
+           
+\end{enumerate}
+```
+### Let's calculate the sample size first
 
 ```{r}
-sort(table(albania$qarku))
+#get the total of animals in the population 
+N_total_cows <- nrow(herds)                # Total of animal in the population
+
+# Calculate sample size.
+my_sample_size <- rsampcalc(N_total_cows,  # Total number of records 
+                  e=5,                     # Tolerable margin of error this case 3%
+                  ci=95,                   # Confidence interval of 95%
+                  p=0.5)                   # Anticipated response distribution
+
+print(my_sample_size)
 
 ```
 
-```{r}
-# Calulate the overall sample size.
-size <- rsampcalc(nrow(albania),  #  Total number of record 
-                  e=3,            # tolerable margin of error this case 3%
-                  ci=95,          # confidence interval of 95%
-                  p=0.5)          # anticipated response distribution
+Thus, we have to sample `r my_sample_size` cows from the herd's population.
 
-# Stratify the data by the variable 'qarku' which represent the region.
-stratifiedsample <- ssamp(albania, size, qarku)
-sort(table(stratifiedsample$qarku))
+# Systematic random sample
+
+```{r}
+my_selected_cows <- ceiling(seq(from= 1,           # Initial number of cows 
+                    to = nrow(herds),              # Total number of cows 
+                    length.out = my_sample_size))  # my sample size
+
+# select the cows sampled 
+my_sampled_cows <- herds %>%
+  filter(cowid %in% my_selected_cows)
+head(my_sampled_cows)
+
+```
+
+# Stratified random sample
+
+suppose that im interesting in taking a sample that represents well all the different samples size because that may impact the analysis of my study.
+
+let's see how is my strata
+
+```{r}
+# table the cows by strata 
+herds %>%
+  group_by(h_size)%>%
+  count() %>%
+  arrange(-h_size)
+
+
+
+```
+
+We found 29 strata in my data, no here we will create a subset of `herds` database by using a stratified random sample approach
+
+```{r}
+
+# Stratify the data by the variable 'h_size' which represents the herd size classification
+stratifiedsample <- ssamp(df = herds,           # database to sample 
+                          n = my_sample_size,   # sample size 
+                          strata = h_size)      #strata to be used 
+# check the sampled data
+stratifiedsample %>%           # my final database after the stratified random sampling
+  group_by(h_size) %>%         # group by the strata variable 
+  count() %>%                  # count the item by strata 
+  arrange(-h_size)             # sort in decreasing order 
+```
+
+# Cluster sampling
+
+```{=tex}
+\begin{enumerate}
+ \item A cluster is a natural or convenient collection of study subjects with one or more characteristics in common
+ \begin{itemize}
+   \item a dairy herd is a cluster of cattle. 
+  \end{itemize}
+ \item Cluster sampling is done because it might be easier to get a list of clusters (farms) than it would be to get a list of individuals (calves).
+\end{enumerate}
+```
+### lets select the farms id as clusters
+
+```{r}
+# create my clusters list 
+clusters <- unique(herds$herdid)
+
+```
+
+### select a sample size of the clusters
+
+```{r}
+# Calculate the sample size of the clusters
+my_sample_size_cluster <- rsampcalc(length(clusters),  # Total number of clusters  
+                  e=5,                         # Tolerable margin of error this case 3%
+                  ci=95,                       # Confidence interval of 95%
+                  p=0.15)                       # Anticipated response distribution
+my_sample_size_cluster
+```
+
+here, given the small $N$ of our sample, we take a sample of `r my_sample_size_cluster`
+
+### Filtering the herd's data by the clusters selected
+
+```{r}
+# create a sample of the clusters (herds ids)
+herds_to_be_sampled <-  sample(herds$herdid, 
+                               my_sample_size_cluster)
+
+herds_sampled <- herds %>%
+  filter(herdid %in% herds_to_be_sampled)
+
+head(herds_sampled)
+
+```
+
+# Multi-stage sampling
+
+Here we will generates artificial data (a 235X3 matrix with 3 columns: state, region, income).
+
+-   The variable "`state`" has 2 categories ('***Triangle***','***No_triangle***').
+
+-   The variable "`region`" has 5 categories ('Cary', 'Raleigh', 'Durham', 'Ashville', 'Carolina').
+
+-   The variable "`income`" is generated using the U(0,1) distribution.
+
+```{r}
+# create the data 
+data<- rbind(matrix(rep('Triangle',165),165,1,byrow=TRUE),matrix(rep('No_triangle',70),70,1,byrow=TRUE))
+#add region categories 
+data <- cbind.data.frame(data,c(rep('Cary',115),rep('Raleigh',10),rep('Durham',40),rep('Ashville',30),rep('Carolina beach',40)),100*runif(235))
+
+# set the names 
+names(data)=c("state","region","income")
+
+```
+
+the method is simple random sampling without replacement where \# 25 units are drawn in the first-stage and in the second-stage, 10 units are drawn from the already 25 selected units
+
+```{r}
+m=mstage(data,
+         size=list(25,   
+                   10),
+         method=list("srswor","srswor")) # stands for simple random sampling without replacement 
+
+```
+
+### The first stage is `m[[1]]`, the second stage is `m[[2]]`
+
+
+
+```{r}
+# extracts the observed data
+xx=getdata(data,m)[[2]]
+
+# check the result 
+table(xx$state,xx$region)
 ```

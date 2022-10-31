@@ -28,46 +28,18 @@ if(!require(plot3D)){install.packages("plot3D")}; library(plot3D)
 # clinical_mastitis_cows <- read_csv("C:/Users/ncesped/Downloads/Clinical_Mastitis_cows_version2/clinical_mastitis_cows.csv")
 clinical_mastitis_cows <- read_excel("clinical_mastitis_cows.xlsx")
 ```
-# Simple random sampling.
 
-We will take a sample of **N** from a list of target invidious:
+# The Why of Sample Size Calculations
 
-* I wanted to sample from a list of friend and calculate who will provide me with my daily cookie? 
+-   How many animals/subjects do I need for my experiment?
+    -   Too small of a sample size can under detect the effect of interest in your experiment.
 
-My options are the following: Felipe, Arthur, Denilson, Jason,  Abby, Gustavo and Kelsey.
+    -   Too large of a sample size may lead to unnecessary wasting of resources and animals Like Goldilocks, we want our sample size to be 'just right'.
+-   The answer: Goal: Sample Size Calculation.
 
-> I can run one time random sample selectin once.
- 
-```{r}
-# Options to get my cookie  
-N <- c("Felipe",
-       "Jason", 
-       "Arthur",
-       "Denilson",
-        "Abby",
-       "Gustavo",
-       "Kelsey" )
+# Sample size and the expected proportion i.e.
 
-# Calculate the sample 
-sample(N,              # total of the population 
-       1,              # one person 
-       replace = F)    # sampling without replacement 
-```
-To better represent the sample drawing we will simulate this sampling for 1000 times
-
-```{r}
-# Simple random sample repeated 1000 times.
-result <- sample(N,       # total of the population 
-          1000,           # one person 
-          replace = T)    # sample without replacement
-
-# Present into a table with the results.
-sort(table(result))
-```
-# Sample size.
-
-Here we will calculate the number of animals needed to estimate disease prevalence in a finite population.
-For this example the expected prevalence is **15%**. We want to know how the sample size in which a **95%** confidence interval is needed. We know that our total target population is `N` of 1000 animals.
+Here we will calculate the number of animals needed to estimate disease prevalence in a finite population. For this example, the expected prevalence is **15%**. We want to know how the sample size in which a **95%** confidence interval is needed. We know that our total target population is `N` of 1000 animals.
 
 ```{r}
 size <- rsampcalc(N=1000,   # total of the population 
@@ -77,13 +49,10 @@ size <- rsampcalc(N=1000,   # total of the population
 print(size)
 
 ```
-# Stratified random sampling.
-For this example we are going to use the `Albania` dataset containing 2017 Albania election that is previously installed in R. First, we are going to explore in detail the variable `qarku` that means county or location to see how many records are in each region.
 
+# Relationship between population size, proportion, and sample size
 
-# Relation between sample size and prevalence.
-
-In the next analysis, we are going to simulate 1000 sampling designs. Here we are going to consider an initial prevalence of 1% while increasing the expected prevalence all the way to 100%, in this same way we are going to consider that population size from 10 animals to 100 animals. In the next plot, the color reflects the sample size where warm colors represent larger sample sizes.
+In the next analysis, we are going to simulate 1000 sampling designs. Here, we are going to consider an initial prevalence of 1% while increasing the expected prevalence all the way to 100%, in this same vein, let's consider that population size from 10 animals to 1000 animals. In the next plot, is elucidated the effect of all these factorial combinations. the color reflects the sample size whereas warm colors represent larger sample sizes.
 
 ```{r}
 # Set up the number of samples.
@@ -113,17 +82,56 @@ scatter3D(mydata$myprevalence,
           xlab = "Prevalence", ylab = "Sample size", zlab = "Population")
 ```
 
-# About the dataset
-These data are a very small subset of a large mastitis dataset collected by Jens Agger and the Danish Cattle Organization. This dataset contains records from 14,357 test-day observations in 2,178 cows from 40 herds. Milk weights (production records) were collected approximately monthly, and only records from a single lactation for each cow were included in this dataset. Factors that may have affected the somatic cell count (SCC) were also recorded. The major objective of this study was to determine if the relationship between the somatic cell count and milk production varies for cows with different characteristics (age, breed, grazing or not etc). 
+# Simple random sampling.
 
-### varibales decription 
+We will take a sample of **N** from a list of target invidious:
+
+-   I wanted to sample from a list of friend and calculate who will provide me with my daily cookie?
+
+My options are the following: Felipe, Arthur, Denilson, Jason, Abby, Gustavo and Kelsey.
+
+I can run one time random sample selection once.
+
+```{r}
+# Options to get my cookie  
+labmates <- c("Felipe",
+       "Jason", 
+       "Arthur",
+       "Denilson",
+        "Abby",
+       "Gustavo",
+       "Kelsey" )
+
+# Calculate the sample 
+sample(labmates,              # total of the population 
+       1,              # one person 
+       replace = F)    # sampling without replacement 
+```
+
+To better represent the sample drawing we will simulate this sampling for 1000 times
+
+```{r}
+# Simple random sample repeated 1000 times.
+result <- sample(labmates,       # total of the population 
+          1000,           # one person 
+          replace = T)    # sample without replacement
+
+# Present into a table with the results.
+sort(table(result))
+```
+
+## Herds data as an example of a dataset
+
+In the next examples, we will use `herds` dataframe which is a subset of a [large mastitis dataset collected by Jens Agger and the Danish Cattle Organization](https://www.sciencedirect.com/science/article/pii/S016758770100191X?via%3Dihub "reference"). This dataset contains records from 14,357 test-day observations in 2,178 cows from 40 herds. Milk weights (production records) were collected approximately monthly, and only records from a single lactation for each cow were included in this dataset. Factors that may have affected the somatic cell count (SCC) were also recorded. The major objective of this study was to determine if the relationship between the somatic cell count and milk production varies for cows with different characteristics (age, breed, grazing or not etc).
+
+### variables description
 
 | variable | Description                        | Codes/units     |
 |----------|------------------------------------|-----------------|
 | herdid   | herd id                            |                 |
 | cowid    | cow id                             |                 |
-| test     | approximate month of lactation     | 0 to 10         |
-| h_size   | average herdsize                   |                 |
+| test     | the approximate month of lactation | 0 to 10         |
+| h_size   | average herd size                  |                 |
 | c_heifer | parity of the cow                  | 1 = heifer      |
 |          |                                    | 0 = multiparous |
 | t_season | season of test day                 | l = jan-mar     |
@@ -138,9 +146,17 @@ These data are a very small subset of a large mastitis dataset collected by Jens
 
 
 
+
+
+
+
+
+
 ```{r}
 sort(table(albania$qarku))
+
 ```
+
 ```{r}
 # Calulate the overall sample size.
 size <- rsampcalc(nrow(albania),  #  Total number of record 

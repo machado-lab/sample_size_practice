@@ -15,8 +15,10 @@ output:
 ---
 
 ### Set some packages and data in R.
+
 ### data is avaliable in
-https://github.com/machado-lab/sample_size_practice 
+
+<https://github.com/machado-lab/sample_size_practice>
 
 ```{r, echo=T, warning=F, message=FALSE}
 #load and install the packages (if required)
@@ -35,9 +37,6 @@ herds <- herds %>% distinct(cowid, .keep_all = T)
 # round  herd size 
 herds$h_size <- ceiling(herds$h_size)
 ```
-
-
-
 
 # Why of Sample Size Calculations
 
@@ -270,7 +269,7 @@ head(herds_sampled)
 
 # Multi-stage sampling
 
-Here we will generates artificial data (a 235X3 matrix with 3 columns: state, region, income).
+Here we will generate artificial data (a 235X3 matrix with 3 columns: state, region, and income).
 
 -   The variable "`state`" has 2 categories ('***Triangle***','***No_triangle***').
 
@@ -282,7 +281,7 @@ Here we will generates artificial data (a 235X3 matrix with 3 columns: state, re
 # create a random data 
 data<- rbind(matrix(rep('Triangle',165),165,1,byrow=TRUE),
              matrix(rep('No_triangle',70),70,1,byrow=TRUE))
-# add region categories 
+ 
 data <- cbind.data.frame(data,c(rep('Cary',115),
                                 rep('Raleigh',10),
                                 rep('Durham',40),
@@ -290,12 +289,12 @@ data <- cbind.data.frame(data,c(rep('Cary',115),
                                 rep('Carolina beach',40)),
                          100*runif(235))
 
-# set the names 
+
 names(data)=c("state","region","income")
 
 ```
 
-the method is simple random sampling without replacement where \# 25 units are drawn in the first-stage and in the second-stage, 10 units are drawn from the already 25 selected units
+The method is simple random sampling without replacement where \# 25 units are drawn in the first-stage and in the second-stage, 10 units are drawn from the already 25 selected units
 
 ```{r}
 m=mstage(data,
@@ -308,8 +307,6 @@ m=mstage(data,
 
 ### The first stage is `m[[1]]`, the second stage is `m[[2]]`
 
-
-
 ```{r}
 # extracts the observed data
 xx=getdata(data,m)[[2]]
@@ -317,3 +314,7 @@ xx=getdata(data,m)[[2]]
 # check the result 
 table(xx$state,xx$region)
 ```
+
+## Assignment
+
+You will need to take a sample to calculate the prevalence of mastitis in cows by using a cell count. Column `t_lnscc` in the `herds` dataset indicates the cell count results. Please consider an estimated prevalence of 15% and a tolerable margin of error of 5%.

@@ -1,15 +1,10 @@
-
-
-title: "Sampling Populations"
-author: 'NCSU: Nicolas Cardenas & Gustavo Machado'
-subtitle: 'practical examples of sampling populations in veterinary medicine using R' 
-date: "`r Sys.Date()`"
-output:
-
+title: "Sampling Populations" author: 'NCSU: Nicolas Cardenas & Gustavo Machado' subtitle: 'practical examples of sampling populations in veterinary medicine using R' date: "`r Sys.Date()`" output:
 
 ### Set some packages and data in R.
+
 ### data is avaliable in
-https://github.com/machado-lab/sample_size_practice 
+
+<https://github.com/machado-lab/sample_size_practice>
 
 ```{r, echo=T, warning=F, message=FALSE}
 #load and install the packages (if required)
@@ -28,9 +23,6 @@ herds <- herds %>% distinct(cowid, .keep_all = T)
 # round  herd size 
 herds$h_size <- ceiling(herds$h_size)
 ```
-
-
-
 
 # Why of Sample Size Calculations
 
@@ -144,13 +136,12 @@ In the next examples, we will use `herds` dataframe which is a subset of a [larg
 | t_dim    | days in milk on test-day           | days            |
 | t_lnscc  | log somatic cell count on test day |                 |
 
-```{=tex}
 \begin{enumerate}
   \item A complete list of the population to be sampled is not required.
   \item The sampling interval is computed as population size divided by the required sample size. 
            
 \end{enumerate}
-```
+
 ### Let's calculate the sample size first
 
 ```{r}
@@ -217,7 +208,6 @@ stratifiedsample %>%           # my final database after the stratified random s
 
 # Cluster sampling
 
-```{=tex}
 \begin{enumerate}
  \item A cluster is a natural or convenient collection of study subjects with one or more characteristics in common
  \begin{itemize}
@@ -225,7 +215,7 @@ stratifiedsample %>%           # my final database after the stratified random s
   \end{itemize}
  \item Cluster sampling is done because it might be easier to get a list of clusters (farms) than it would be to get a list of individuals (calves).
 \end{enumerate}
-```
+
 ### lets select the farms id as clusters
 
 ```{r}
@@ -301,8 +291,6 @@ m=mstage(data,
 
 ### The first stage is `m[[1]]`, the second stage is `m[[2]]`
 
-
-
 ```{r}
 # extracts the observed data
 xx=getdata(data,m)[[2]]
@@ -310,3 +298,7 @@ xx=getdata(data,m)[[2]]
 # check the result 
 table(xx$state,xx$region)
 ```
+
+## Assignment
+
+You will need to take a sample to calculate the prevalence of mastitis in cows by using a cell count. Column `t_lnscc` in the `herds` dataset indicates the cell count results. Please consider an estimated prevalence of 15% and a tolerable margin of error of 5%.
